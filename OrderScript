@@ -1,0 +1,67 @@
+import csv
+
+class OrderProcessor:
+    def __init__(self, file_path):
+        """Initialize with the orders file path."""
+        self.file_path = file_path
+        self.orders = self.load_orders()
+
+    def load_orders(self):
+        """Load orders from a CSV file."""
+        orders = []
+        with open(self.file_path, 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                orders.append(row)
+        return orders[1:]  # Exclude header row
+
+    def extract_orders_by_status(self, status):
+        """Extract orders with a specific status."""
+        return [order for order in self.orders if order[-1] == status]
+
+    def calculate_total_revenue(self, status):
+        """Calculate the total revenue for orders with a given status."""
+        filtered_orders = self.extract_orders_by_status(status)
+        total_revenue = sum(float(order[4]) * int(order[5]) for order in filtered_orders)
+        return total_revenue
+
+    def extract_orders_by_category(self, category):
+        """Extract orders for a specific product category."""
+        return [order for order in self.orders if order[2] == category]
+
+    def format_names(self):
+        """Format customer names as LAST, First."""
+        formatted_names = []
+        for order in self.orders:
+            first, last = order[1].split(' ')
+            formatted_names.append(f"{last.upper()}, {first}")
+        return formatted_names
+
+    def convert_names_to_uppercase(self):
+        """Convert customer names to uppercase."""
+        return [order[1].upper() for order in self.orders]
+
+    def display_results(self):
+        """Print results for the given tasks."""
+        print("📌 Delivered Orders:")
+        for order in self.extract_orders_by_status("Delivered"):
+            print(order)
+
+        print("\n📌 Total Revenue from Delivered Orders:", self.calculate_total_revenue("Delivered"))
+
+        print("\n📌 Electronics Orders:")
+        for order in self.extract_orders_by_category("Electronics"):
+            print(order)
+
+        print("\n📌 Customer Names in Uppercase:")
+        for name in self.convert_names_to_uppercase():
+            print(name)
+
+        print("\n📌 Formatted Customer Names (LAST, First):")
+        for name in self.format_names():
+            print(name)
+
+# Run the program
+if __name__ == "__main__":
+    processor = OrderProcessor("orders.txt")
+    processor.display_results()
